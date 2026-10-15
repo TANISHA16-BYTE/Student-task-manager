@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow | Student Task Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <a href="/" class="brand">Task<span>Flow.</span></a>
+        <span class="tagline">Your goals, organised.</span>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <p class="eyebrow">STUDENT PRODUCTIVITY</p>
+            <h1>Make time for<br><span>what matters.</span></h1>
+            <p class="subtitle">One small task at a time. Keep your study goals on track.</p>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <span>Total tasks</span>
+                <strong>{{ total }}</strong>
+            </div>
+            <div class="stat-card">
+                <span>Pending</span>
+                <strong>{{ pending }}</strong>
+            </div>
+            <div class="stat-card">
+                <span>Completed</span>
+                <strong>{{ completed }}</strong>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Add a new task</h2>
+            <form action="/add" method="POST" class="add-form">
+                <input type="text" name="title" placeholder="e.g. Practise CSS for 30 minutes" maxlength="200" required>
+                <button type="submit">+ Add task</button>
+            </form>
+        </section>
+
+        <section class="task-section">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">YOUR WORKSPACE</p>
+                    <h2>My tasks</h2>
+                </div>
+                <div class="filters">
+                    <a href="/?filter=all" class="{{ 'active' if current_filter == 'all' else '' }}">All</a>
+                    <a href="/?filter=pending" class="{{ 'active' if current_filter == 'pending' else '' }}">Pending</a>
+                    <a href="/?filter=completed" class="{{ 'active' if current_filter == 'completed' else '' }}">Completed</a>
+                </div>
+            </div>
+
+            {% if tasks %}
+                <div class="task-list">
+                    {% for task in tasks %}
+                        <article class="task-card {{ 'done' if task['completed'] else '' }}">
+                            <div class="task-info">
+                                <span class="task-dot"></span>
+                                <span class="task-title">{{ task['title'] }}</span>
+                            </div>
+
+                            <div class="task-actions">
+                                {% if task['completed'] %}
+                                    <span class="status done-status">Completed</span>
+                                    <form action="/complete/{{ task['id'] }}" method="POST">
+                                        <button class="action-btn" type="submit">Undo</button>
+                                    </form>
+                                {% else %}
+                                    <span class="status pending-status">Pending</span>
+                                    <form action="/complete/{{ task['id'] }}" method="POST">
+                                        <button class="action-btn" type="submit">Complete</button>
+                                    </form>
+                                {% endif %}
+
+                                <form action="/delete/{{ task['id'] }}" method="POST"
+                                      onsubmit="return confirm('Delete this task?')">
+                                    <button class="delete-btn" type="submit" aria-label="Delete task">Delete</button>
+                                </form>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">✓</div>
+                    <h3>No tasks here yet</h3>
+                    <p>Add a task above and start making progress.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <footer>
+            Built with Python, Flask, SQLite and HTML/CSS.
+        </footer>
+    </main>
+</body>
+</html>
